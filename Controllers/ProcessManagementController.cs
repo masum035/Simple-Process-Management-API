@@ -1,43 +1,66 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
+using Simple_Process_Management_API.Model;
+using Simple_Process_Management_API.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Simple_Process_Management_API.Controllers
 {
-    [Route("api/[controller]")]
+    
+    [ApiVersion(1)]
     [ApiController]
-    public class ProcessManagementController : ControllerBase
+    public class ProcessManagementController(ProcessManager processManager) : ControllerBase
     {
-        // GET: api/<ProcessManagementController>
+        // endpoint: api/v1/ProcessManagement/create-process
+        [MapToApiVersion(1)]
+        [Route("api/v{v:apiVersion}/create-process")]
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<ProcessModel>> CreateProcess()
         {
-            return new string[] { "value1", "value2" };
+            var process = await processManager.CreateProcess();
+            return Ok(new { process.PID, process.FormattedCreationTime });
         }
 
-        // GET api/<ProcessManagementController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // endpoint: api/v1/ProcessManagement/get-single/{pid}
+        [MapToApiVersion(1)]
+        [Route("api/v{v:apiVersion}/get-single/{pid}")]
+        [HttpGet]
+        public async Task<ActionResult<List<string>>> GetSingleProcessLogs(int pid)
         {
-            return "value";
+            var process = await processManager.GetProcess(pid);
+            if (process == null)
+            {
+                return NotFound("Process not found");
+            }
+            return Ok(process.Logs);
         }
 
-        // POST api/<ProcessManagementController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        // endpoint: api/v1/ProcessManagement/get-all
+        [MapToApiVersion(1)]
+        [Route("api/v{v:apiVersion}/get-all")]
+        [HttpGet]
+        public async Task<ActionResult<List<ProcessModel>>>  GetAllProcess()
         {
+            var processes = await processManager.GetAllProcesses();
+            return Ok(processes.Select(p => new
+            {
+                p.PID,p.CreationTime
+            }));
         }
+        
 
-        // PUT api/<ProcessManagementController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        // endpoint: api/v1/ProcessManagement/delete-process/{pid}
+        [MapToApiVersion(1)]
+        [Route("api/v{v:apiVersion}/delete-process/{pid}")]
+        [HttpDelete]
+        public async Task<ActionResult> DeleteProcess(int pid)
         {
-        }
-
-        // DELETE api/<ProcessManagementController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            bool isValid = await processManager.DeleteProcess(pid);
+            if (isValid)
+                return Ok();
+            else
+                return NotFound();
         }
     }
 }
