@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using Microsoft.OpenApi.Models;
 using Simple_Process_Management_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);

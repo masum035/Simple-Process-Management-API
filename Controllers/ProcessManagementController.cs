@@ -12,17 +12,17 @@ namespace Simple_Process_Management_API.Controllers
     [ApiController]
     public class ProcessManagementController(ProcessManager processManager) : ControllerBase
     {
-        // endpoint: api/v1/ProcessManagement/create-process
+        // endpoint: api/v1/create-process
         [MapToApiVersion(1)]
         [Route("api/v{v:apiVersion}/create-process")]
         [HttpGet]
         public async Task<ActionResult<ProcessModel>> CreateProcess()
         {
             var process = await processManager.CreateProcess();
-            return Ok(new { process.PID, process.FormattedCreationTime });
+            return Ok(new { process.PID, process.CreationTime });
         }
 
-        // endpoint: api/v1/ProcessManagement/get-single/{pid}
+        // endpoint: api/v1/get-single/{pid}
         [MapToApiVersion(1)]
         [Route("api/v{v:apiVersion}/get-single/{pid}")]
         [HttpGet]
@@ -36,7 +36,7 @@ namespace Simple_Process_Management_API.Controllers
             return Ok(process.Logs);
         }
 
-        // endpoint: api/v1/ProcessManagement/get-all
+        // endpoint: api/v1/get-all
         [MapToApiVersion(1)]
         [Route("api/v{v:apiVersion}/get-all")]
         [HttpGet]
@@ -50,7 +50,7 @@ namespace Simple_Process_Management_API.Controllers
         }
         
 
-        // endpoint: api/v1/ProcessManagement/delete-process/{pid}
+        // endpoint: api/v1/delete-process/{pid}
         [MapToApiVersion(1)]
         [Route("api/v{v:apiVersion}/delete-process/{pid}")]
         [HttpDelete]

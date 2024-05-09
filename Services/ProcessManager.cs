@@ -17,7 +17,7 @@ public class ProcessManager
         var processInfo = new ProcessModel
         {
             PID = processId,
-            CreationTime = DateTime.UtcNow.ToLocalTime(),
+            TimeNow = DateTime.UtcNow.ToLocalTime(),
             CancelTokenSource = cancelTokenSource
         };
 
@@ -70,6 +70,7 @@ public class ProcessManager
         }
     }
 
+    
     public async Task<bool> DeleteProcess(int processId)
     {
         await _semaphore.WaitAsync();
@@ -77,7 +78,7 @@ public class ProcessManager
         {
             if (_processes.TryGetValue(processId, out var processModel))
             {
-                processModel.CancelTokenSource.Cancel();
+                await processModel.CancelTokenSource.CancelAsync();
                 return _processes.Remove(processId);
             }
 
